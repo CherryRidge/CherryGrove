@@ -1,5 +1,9 @@
 English | [中文](README.chs.md)
 
+> [!IMPORTANT]
+>
+> Rules for branches are changing. Main branch is going to be `dev` which is originally `nightly` and guarantees a successful build. The default working branch will be switched from `dev` to `canary`.
+
 <p align="center"><img alt="CherryGrove Logo" width="150" src="assets/icons/CherryGrove-trs-2048.png" /></p>
 
 <h1 align="center">CherryGrove</h1>
