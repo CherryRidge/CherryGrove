@@ -1,8 +1,8 @@
 #pragma once
 #include <compare>
 #include <memory>
-#include <vector>
 #include <ostream>
+#include <vector>
 
 #include "../debug/implLShiftFor.hpp"
 #include "concepts.hpp"
@@ -55,7 +55,7 @@ namespace Util {
     };
 
     //Use SlotTable with `HandleType` as plain `GenerationalHandle` is deprecated and should be replaced by distinct handles for better type safety.
-    template <typename EntryType, typename HandleType> requires Equal<HandleType, GenerationalHandle> || DistinctHandleOf<HandleType, GenerationalHandle>
+    template <typename EntryType, typename HandleType> requires EqualStrict<HandleType, GenerationalHandle> || DistinctHandleOf<HandleType, GenerationalHandle>
     struct SlotTable {
     private:
         struct Entry {
@@ -81,7 +81,7 @@ namespace Util {
             };
         }
 
-        [[nodiscard]] size_t nextOccupiedIndex(size_t index) const noexcept {
+        [[nodiscard]] u64 nextOccupiedIndex(u64 index) const noexcept {
             while (index < storage.size() && (storage[index].generation & 1) == 0) index++;
             return index;
         }
@@ -144,12 +144,13 @@ namespace Util {
 
         [[nodiscard]] bool isNew() const noexcept { return freeList.size() + storage.size() == 0; }
         [[nodiscard]] bool isEmpty() const noexcept { return freeList.size() == storage.size(); }
-        [[nodiscard]] size_t size() const noexcept { return storage.size() - freeList.size(); }
+        [[nodiscard]] u64 size() const noexcept { return storage.size() - freeList.size(); }
+        [[nodiscard]] u64 capacity() const noexcept { return storage.capacity(); }
 
         void clear() noexcept {
             freeList.clear();
             freeList.reserve(storage.size());
-            for (size_t index = 0; index < storage.size(); index++) {
+            for (u64 index = 0; index < storage.size(); index++) {
                 auto& slot = storage[index];
                 if ((slot.generation & 1) != 0) slot.generation++;
                 freeList.emplace_back(static_cast<u32>(index));
@@ -174,10 +175,10 @@ namespace Util {
 
         struct Iterator {
             SlotTable<EntryType, HandleType>* table{nullptr};
-            size_t index{0};
+            u64 index{0};
 
             Iterator() noexcept = default;
-            Iterator(SlotTable<EntryType, HandleType>* table, size_t index) noexcept : table(table), index(index) {}
+            Iterator(SlotTable<EntryType, HandleType>* table, u64 index) noexcept : table(table), index(index) {}
 
             EntryType& operator*() const noexcept {
                 return *(
@@ -212,10 +213,10 @@ namespace Util {
 
         struct ConstIterator {
             const SlotTable<EntryType, HandleType>* table{nullptr};
-            size_t index{0};
+            u64 index{0};
 
             ConstIterator() noexcept = default;
-            ConstIterator(const SlotTable<EntryType, HandleType>* table, size_t index) noexcept : table(table), index(index) {}
+            ConstIterator(const SlotTable<EntryType, HandleType>* table, u64 index) noexcept : table(table), index(index) {}
             ConstIterator(const Iterator& other) noexcept : table(other.table), index(other.index) {}
 
             const EntryType& operator*() const noexcept {

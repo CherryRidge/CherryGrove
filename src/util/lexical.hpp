@@ -41,11 +41,4 @@ namespace Util {
     [[nodiscard]] inline bool isOctalDigit(char c) noexcept {
         return c >= '0' && c <= '7';
     }
-
-    [[nodiscard]] inline bool isValidNameAndSpace(const string_view str) noexcept {
-        const size_t pos = str.find(':');
-        if (pos == string_view::npos) return false;
-        const string_view nameSpace = str.substr(0, pos), identifier = str.substr(pos + 1);
-        return isValidIdentifier(nameSpace) && isValidIdentifier(identifier);
-    }
 }

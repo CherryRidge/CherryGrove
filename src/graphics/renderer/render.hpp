@@ -7,7 +7,7 @@
 #include "../../intrinsics/systems/Rotation.hpp"
 #include "../../settings/Settings.hpp"
 #include "../../simulation/states.hpp"
-#include "../../simulation/tick/playerEntity.hpp"
+#include "../../world/playerEntity.hpp"
 #include "definitions.hpp"
 #include "size.hpp"
 
@@ -20,13 +20,11 @@ namespace Renderer {
         bgfx::setViewRect(VIEWID_GAME, 0, 0, internal::windowInfoCache.width, internal::windowInfoCache.height);
         if (Simulation::isSimStarted()) {
         //Prepare render environment
-            static_cast<void>(Systems::getViewMtx(Simulation::playerEntity, view));
-            static_cast<void>(Systems::getProjMtx(Simulation::playerEntity, internal::windowInfoCache.aspectRatio, proj));
+            static_cast<void>(Systems::getViewMtx(World::playerEntity, view));
+            static_cast<void>(Systems::getProjMtx(World::playerEntity, internal::windowInfoCache.aspectRatio, proj));
             bgfx::setViewTransform(VIEWID_GAME, view.data(), proj.data());
         //Render blocks from chunk meshes
-            //todo: get chunks around player (settings.renderDistance) and group the `ChunkMesh`.
             const auto renderDistance = Settings::getSettings().graphics.renderDistance;
-            const auto& playerPos = Simulation::playerEntity.get<Components::EntityCoordinates>();
         //Render entities
             
             //bgfx::submit();

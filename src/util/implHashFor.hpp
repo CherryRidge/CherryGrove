@@ -1,17 +1,20 @@
 #pragma once
+#include <cstdint>
+
+typedef uint64_t u64;
 
 //Use `seed` to reference to the seed.
 #define IMPL_HASH_FOR(ns, type, _seed, ...) \
 namespace ns { \
-    [[nodiscard]] inline size_t hash_value(const type& input) noexcept { \
-        size_t seed = _seed; \
+    [[nodiscard]] inline u64 hash_value(const type& input) noexcept { \
+        u64 seed = _seed; \
         __VA_ARGS__ \
         return seed; \
     } \
 } \
 namespace std { \
     template <> struct hash<ns::type> { \
-        [[nodiscard]] size_t operator()(const ns::type& input) const noexcept { \
+        [[nodiscard]] u64 operator()(const ns::type& input) const noexcept { \
             return ns::hash_value(input); \
         } \
     }; \

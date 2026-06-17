@@ -59,7 +59,7 @@ namespace Boot {
                 buf.resize(cap);
             }
             if (attempts >= maxAttempts) Debug::exit(Debug::FILESYSTEM_CANNOT_GET_EXECUTABLE_PATH);
-            vector<char> resolved(max(static_cast<size_t>(PATH_MAX * 2), static_cast<size_t>(cap)) + 1);
+            vector<char> resolved(max(static_cast<u64>(PATH_MAX) * 2, static_cast<u64>(cap)) + 1);
             if (realpath(buf.data(), resolved.data())) {
                 path exeDict = path(string(resolved.data())).parent_path();
                 if (!exeDict.empty()) return exeDict;

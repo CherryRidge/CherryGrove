@@ -4,6 +4,7 @@
 #include <type_traits>
 
 namespace Util {
+    typedef uint64_t u64;
     using std::remove_cvref_t, std::function;
     
     namespace detail {
@@ -14,9 +15,9 @@ namespace Util {
             using Return    = Ret;
             using Arguments = tuple<Args...>;
         
-            static constexpr size_t argCount = sizeof...(Args);
+            static constexpr u64 argCount = sizeof...(Args);
         
-            template <size_t N>
+            template <u64 N>
             using Argument = tuple_element_t<N, Arguments>;
         };
 
@@ -69,9 +70,9 @@ namespace Util {
     template <typename fn>
     using ArgumentTypes = typename detail::FunctionTraits<fn>::Arguments;
 
-    template <typename fn, size_t N>
+    template <typename fn, u64 N>
     using ArgumentType = typename detail::FunctionTraits<fn>::template Argument<N>;
 
     template <typename fn>
-    inline constexpr size_t ArgumentCount = detail::FunctionTraits<fn>::argCount;
+    inline constexpr u64 ArgumentCount = detail::FunctionTraits<fn>::argCount;
 }

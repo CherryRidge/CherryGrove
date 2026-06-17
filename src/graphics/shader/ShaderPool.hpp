@@ -18,10 +18,9 @@ namespace ShaderPool {
         //This is a critical function so we always panic if it fails.
         [[nodiscard]] inline bgfx::ShaderHandle loadShader(const ShaderDef& shaderDef) noexcept {
             const u8* data = nullptr;
-            size_t size = 0;
+            u64 size = 0;
             switch (bgfx::getRendererType()) {
                 using enum bgfx::RendererType::Enum;
-
                 case Direct3D11:
                     data = shaderDef.dx11;
                     size = shaderDef.dx11_size;
@@ -50,12 +49,10 @@ namespace ShaderPool {
                     lerr << "[ShaderPool] No valid render backends!" << nlaf;
                     Debug::exit(Debug::BGFX_NO_VALID_RENDER_BACKEND);
             }
-        #if CG_DEBUG
             if (data == nullptr || size == 0) {
                 lerr << "[ShaderPool] Failed to load shader!" << nlaf;
                 Debug::exit(Debug::BGFX_CREATE_SHADER_FAILED);
             }
-        #endif
             const bgfx::Memory* memory = bgfx::alloc(size + 1);
             memory->data[memory->size - 1] = '\0';
             const auto handle = bgfx::createShader(memory);

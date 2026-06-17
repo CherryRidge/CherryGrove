@@ -83,7 +83,7 @@ namespace Main {
         Util::Promise<Sound::SoundHandle> promise;
         Sound::addSound(&promise, "tests/a.ogg", true, true, 1.0f, Sound::FLOAT_INFINITY, Sound::FLOAT_INFINITY);
         const auto handle = promise.wait();
-        Sound::play(nullptr, handle, {0.0, 0.0, 0.0});
+        Sound::play(nullptr, handle, {0.0, 0.0, 0.0, 0u});
 
     //Set up main menu
         Gui::setVisibility(Gui::Intrinsics::MainMenu, true);

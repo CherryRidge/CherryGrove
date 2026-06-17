@@ -4,9 +4,10 @@
 #include "concepts.hpp"
 
 namespace Util {
+    typedef uint64_t u64;
     using std::array, Util::UInt;
     
-    template <typename T, size_t size, size_t sizeR> requires UInt<T>
+    template <typename T, u64 size, u64 sizeR> requires UInt<T>
     struct BijectorArray {
     private:
         using Arr = array<T, size>;
@@ -17,7 +18,7 @@ namespace Util {
     public:
         //Don't mark explicit because we want syntax sugar of `BijectorArray arr = {{ ... }};`.
         [[nodiscard]] constexpr BijectorArray(const Arr& input, T invalid = 0, bool isDestinationInstead = false) : forward(input) {
-            static_assert(sizeof(T) <= sizeof(size_t), "Type T too large to be used as array index.");
+            static_assert(sizeof(T) <= sizeof(u64), "Type T too large to be used as array index.");
             T maxv = 0;
             for (T i = 0; i < size; i++) if (input[i] > maxv) maxv = input[i];
             if (maxv + 1 > sizeR) throw "BijectorArray: sizeR too small for the provided input array.";

@@ -120,7 +120,7 @@ namespace Util::Json {
             }
         };
 
-        template <typename List, typename Upgraders, size_t... Is>
+        template <typename List, typename Upgraders, u64... Is>
         [[nodiscard]] inline consteval bool validateUpgraderReturns(index_sequence<Is...>) noexcept {
             return (... && (
                 is_same_v<

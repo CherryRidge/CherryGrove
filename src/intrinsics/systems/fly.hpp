@@ -3,8 +3,8 @@
 #include <glm/glm.hpp>
 #include <flecs.h>
 
+#include "../components/BasicMovementProps.hpp"
 #include "../components/Coordinates.hpp"
-#include "../components/EntityMovementProperties.hpp"
 #include "../components/Rotation.hpp"
 
 namespace Systems {
@@ -13,11 +13,15 @@ namespace Systems {
     [[nodiscard]] inline bool fly(flecs::entity entity,
         glm::vec3 direction, u32 deltaTicks = 1
     ) noexcept {
-        if (entity.has<Components::EntityCoordinates>() && entity.has<Components::Rotation>() && entity.has<Components::EntityMovementProperties>()) {
+        if (
+            entity.has<Components::EntityCoordinates>()
+         && entity.has<Components::Rotation>()
+         && entity.has<Components::BasicMovementProps>()
+        ) {
             const auto& rotation = entity.get<Components::Rotation>();
-            const auto& movementProps = entity.get<Components::EntityMovementProperties>();
+            const auto& moveProps = entity.get<Components::BasicMovementProps>();
             auto& coords = entity.ensure<Components::EntityCoordinates>();
-            if (movementProps.canFly) {
+            if (moveProps.canFly) {
                 const double
                     yawRad = glm::radians(rotation.yaw),
                     pitchRad = glm::radians(rotation.pitch),
@@ -25,7 +29,7 @@ namespace Systems {
                     cosYaw = glm::cos(yawRad),
                     sinPitch = glm::sin(pitchRad),
                     cosPitch = glm::cos(pitchRad),
-                    equivalentSpeed = static_cast<double>(movementProps.flySpeed) * deltaTicks;
+                    equivalentSpeed = static_cast<double>(moveProps.flySpeed) * deltaTicks;
                 // Forward (direction.z) - follows yaw and pitch
                 coords.x += equivalentSpeed * direction.z * sinYaw * cosPitch;
                 coords.y -= equivalentSpeed * direction.z * sinPitch;

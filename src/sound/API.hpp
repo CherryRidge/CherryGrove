@@ -70,7 +70,7 @@ namespace Sound {
         float playSpeed = 1.0f
     ) noexcept { detail::commandQueue.enqueue(detail::Play{
         soundHandle,
-        position.getGLMVec3(),
+        position.temp_getGLMVec3(),
         velocity.getGLMVec3(),
         iniProgress,
         pitch,

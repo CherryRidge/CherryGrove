@@ -1,4 +1,5 @@
 #pragma once
+#include "os/thread.hpp"
 #include <concepts>
 #include <filesystem>
 #include <string>
@@ -7,6 +8,7 @@
 #include <utility>
 
 namespace Util {
+    typedef uint64_t u64;
     using std::move, std::string, std::string_view, std::filesystem::path, std::decay_t, std::constructible_from, std::convertible_to, std::is_unsigned_v, std::is_signed_v, std::is_floating_point_v, std::derived_from, std::same_as, std::remove_cvref_t, std::make_index_sequence, std::index_sequence, std::is_aggregate_v;
 
     template <typename T>
@@ -60,18 +62,18 @@ namespace Util {
             operator T() const noexcept;
         };
 
-        template <typename T, size_t N, typename Indices = make_index_sequence<N>>
+        template <typename T, u64 N, typename Indices = make_index_sequence<N>>
         struct CanInitialize;
 
-        template <typename T, size_t N, size_t... Indices>
+        template <typename T, u64 N, u64... Indices>
         struct CanInitialize<T, N, index_sequence<Indices...>> {
             static constexpr bool value = requires { T{ (void(Indices), UniversalType{})... }; };
         };
 
-        template <typename T, size_t min, size_t max>
-        [[nodiscard]] consteval size_t findMemberCount() noexcept {
+        template <typename T, u64 min, u64 max>
+        [[nodiscard]] consteval u64 findMemberCount() noexcept {
             if constexpr (min == max) return min;
-            constexpr size_t mid = (min + max + 1) >> 1;
+            constexpr u64 mid = (min + max + 1) >> 1;
             if constexpr (CanInitialize<T, mid>::value) return findMemberCount<T, mid, max>();
             else return findMemberCount<T, min, mid - 1>();
         }
@@ -79,13 +81,13 @@ namespace Util {
 
     //DO NOT USE THIS FOR COUNTING STRUCTS WITH C-STYLE ARRAYS! It will expand the array and count each element IN THE ARRAY as a member, which is not what you want in most cases.
     //But thankfully C-style arrays are banned from CG codebase anyway, so we are safe.
-    template <typename T, size_t N>
+    template <typename T, u64 N>
     concept HasNMembers = MemberCount::CanInitialize<T, N>::value && !MemberCount::CanInitialize<T, N + 1>::value;
 
     //DO NOT USE THIS FOR COUNTING STRUCTS WITH C-STYLE ARRAYS! It will expand the array and count each element IN THE ARRAY as a member, which is not what you want in most cases.
     //But thankfully C-style arrays are banned from CG codebase anyway, so we are safe.
-    template <typename T, size_t maxSearchRange = 64>
-    constexpr size_t memberCount = MemberCount::findMemberCount<T, 0, maxSearchRange>();
+    template <typename T, u64 maxSearchRange = 64>
+    constexpr u64 memberCount = MemberCount::findMemberCount<T, 0, maxSearchRange>();
 
     template <typename T, typename U>
     concept DistinctHandleOf = requires(remove_cvref_t<T> t) {

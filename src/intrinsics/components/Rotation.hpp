@@ -1,6 +1,8 @@
 #pragma once
 
 namespace Components {
+
+    //CGID: `:rotation`
     struct Rotation {
         //Range: [0.0, 360.0).
         //0.0 is facing south (+Z), 90.0 is facing east (+X).

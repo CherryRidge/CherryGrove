@@ -4,7 +4,8 @@
 namespace Components {
     typedef uint32_t u32;
 
+    //CGID: `:health`
     struct Health {
-        u32 health{0}, maxHealth{0};
+        u32 health{0};
     };
 }

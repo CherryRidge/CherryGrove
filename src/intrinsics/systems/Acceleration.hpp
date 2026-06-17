@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <flecs.h>
 
 #include "../components/Acceleration.hpp"
 #include "../components/Velocity.hpp"

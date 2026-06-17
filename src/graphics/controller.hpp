@@ -4,7 +4,7 @@
 
 #include "../debug/loggers.hpp"
 #include "gui/Gui.hpp"
-#include "renderer/Renderer.hpp"
+#include "renderer/controller.hpp"
 #include "shader/ShaderPool.hpp"
 #include "texture/TexturePool.hpp"
 #include "hold.hpp"

@@ -16,6 +16,7 @@ namespace Boot {
     typedef uint8_t u8;
     typedef int32_t i32;
     typedef uint32_t u32;
+    typedef uint64_t u64;
     using std::string, std::move, std::string_view, std::filesystem::current_path, std::filesystem::path, std::filesystem::remove, std::error_code, std::span, std::vector, Util::OS::readFile, Util::OS::getU8String;
 
     struct SessionLock {
@@ -117,11 +118,11 @@ namespace Boot {
         #else
             if (ftruncate(lockFile, 0) != 0) return false;
             if (lseek(lockFile, 0, SEEK_SET) < 0) return false;
-            size_t totalWritten = 0;
+            u64 totalWritten = 0;
             while (totalWritten < pidBytes.size()) {
                 const auto written = write(lockFile, pidBytes.data() + totalWritten, pidBytes.size() - totalWritten);
                 if (written <= 0) return false;
-                totalWritten += static_cast<size_t>(written);
+                totalWritten += written;
             }
             return true;
         #endif

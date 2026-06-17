@@ -1,9 +1,29 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: ./fetch_prebuilt_libs.sh [7z_path] [arch]
+show_usage() {
+    cat <<'EOF'
+Usage:
+  ./fetch_prebuilt_libs.sh [7z_path] [arch] [github_token]
+  ./fetch_prebuilt_libs.sh -h|--help
+
+Arguments:
+  7z_path      Path to 7z. Defaults to "7z".
+  arch         Architecture to fetch: x64 or arm64. Defaults to detected host architecture.
+  github_token Optional GitHub token for GitHub API requests. Defaults to GITHUB_TOKEN.
+
+See https://docs.cherrygrove.dev/cg/releasing/building for more information.
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    show_usage
+    exit 0
+fi
+
 SEVEN_ZIP="${1:-7z}"
 SPECIFIED_ARCH="${2:-}"
+GITHUB_TOKEN_VALUE="${3:-${GITHUB_TOKEN:-}}"
 
 # --- Detect OS ---
 case "${OSTYPE:-$(uname | tr '[:upper:]' '[:lower:]')}" in
@@ -36,9 +56,9 @@ command -v "$SEVEN_ZIP" >/dev/null 2>&1 || { echo "7z not found at '$SEVEN_ZIP'.
 
 ua="bash-github-latest-release"
 api_ver="2022-11-28"
-auth_header=()
-if [[ -n "${GITHUB_TOKEN:-}" ]]; then
-    auth_header=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
+github_api_auth_header=()
+if [[ -n "$GITHUB_TOKEN_VALUE" ]]; then
+    github_api_auth_header=(-H "Authorization: Bearer ${GITHUB_TOKEN_VALUE}")
 fi
 
 download_library() {
@@ -47,7 +67,7 @@ download_library() {
     local api="https://api.github.com/repos/${repo}/releases/latest"
     echo "Downloading ${name} for ${os_tag} ${arch_tag}..."
     # Fetch release JSON
-    json="$(curl -fsSL --retry 10 --retry-delay 5 --retry-all-errors -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: ${api_ver}" -A "$ua" "${auth_header[@]}" "$api")" || { echo "Failed to query $api" >&2; return 1; }
+    json="$(curl -fsSL --retry 10 --retry-delay 5 --retry-all-errors -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: ${api_ver}" -A "$ua" "${github_api_auth_header[@]}" "$api")" || { echo "Failed to query $api" >&2; return 1; }
 
     # Pick matching assets by filename
     # Example match: "*linux_x64_debug.7z"
@@ -68,9 +88,9 @@ download_library() {
     file_dbg="$(basename "$url_dbg")"
     file_rel="$(basename "$url_rel")"
     echo "Downloading $file_dbg ..."
-    curl -fL --retry 10 --retry-delay 5 --retry-all-errors -A "$ua" "${auth_header[@]}" -o "$file_dbg" "$url_dbg"
+    curl -fL --retry 10 --retry-delay 5 --retry-all-errors -A "$ua" -o "$file_dbg" "$url_dbg"
     echo "Downloading $file_rel ..."
-    curl -fL --retry 10 --retry-delay 5 --retry-all-errors -A "$ua" "${auth_header[@]}" -o "$file_rel" "$url_rel"
+    curl -fL --retry 10 --retry-delay 5 --retry-all-errors -A "$ua" -o "$file_rel" "$url_rel"
 
     # Clean destinations except .gitignore
     script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"

@@ -5,7 +5,7 @@
 
 #include "../../graphics/gui/util.hpp"
 #include "../../simulation/states.hpp"
-#include "../../simulation/tick/playerEntity.hpp"
+#include "../../world/playerEntity.hpp"
 #include "../components/Coordinates.hpp"
 #include "../components/Rotation.hpp"
 
@@ -15,9 +15,9 @@ namespace Gui::DebugMenu {
     inline void render() noexcept {
         Gui::Util::tlWindow("DebugMenu", true, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav);
         if (Simulation::isSimStarted()) {
-            const auto& coords = Simulation::playerEntity.get<Components::EntityCoordinates>();
-            ImGui::TextUnformatted(format("\n(X: {:.2f}, Y: {:.2f}, Z: {:.2f})", coords.x, coords.y, coords.z).c_str());
-            const auto& rotation = Simulation::playerEntity.get<Components::Rotation>();
+            const auto& coords = World::playerEntity.get<Components::EntityCoordinates>();
+            ImGui::TextUnformatted(format("\n({:.2f}, {:.2f}, {:.2f})", coords.x, coords.y, coords.z).c_str());
+            const auto& rotation = World::playerEntity.get<Components::Rotation>();
             ImGui::TextUnformatted(format("(Y: {:.2f}, P: {:.2f})", rotation.yaw, rotation.pitch).c_str());
         }
         else ImGui::TextUnformatted("Game stopped.");

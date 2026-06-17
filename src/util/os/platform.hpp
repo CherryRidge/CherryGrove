@@ -1,5 +1,8 @@
 #pragma once
 
+static_assert(sizeof(size_t) == 8, "CherryGrove only supports 64-bit platforms.");
+static_assert(sizeof(void*) == 8, "CherryGrove only supports 64-bit platforms.");
+
 #if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__) || defined(__NT__)
     #define CG_PLATFORM_WINDOWS 1
     //We must only rely on this windows.h header because it's too awful we need to undefine a lot of macros after including it.

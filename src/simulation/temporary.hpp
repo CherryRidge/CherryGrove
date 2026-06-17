@@ -7,11 +7,12 @@
 #include "../input/pointerLock.hpp"
 #include "../intrinsics/actions/ChangeRotation.hpp"
 #include "../intrinsics/actions/Movement.hpp"
+#include "../intrinsics/components/BasicMovementProps.hpp"
 #include "../intrinsics/components/Camera.hpp"
 #include "../intrinsics/components/Coordinates.hpp"
-#include "../intrinsics/components/EntityMovementProperties.hpp"
 #include "../intrinsics/components/Rotation.hpp"
-#include "tick/world.hpp"
+#include "../world/playerEntity.hpp"
+#include "../world/world.hpp"
 
 namespace Simulation::TemporaryCode {
     using InputHandler::BoolInput::BoolInputKind, InputHandler::MouseMove::SubKind;
@@ -40,11 +41,11 @@ namespace Simulation::TemporaryCode {
         Gui::setVisibility(Gui::Intrinsics::Version, false);
         Gui::setVisibility(Gui::Intrinsics::DebugMenu, true);
 
-        playerEntity = world.entity()
-            .set<Components::Camera>({60.0f})
-            .set<Components::EntityCoordinates>({-0.2, -0.5, 1.0, 0u})
-            .set<Components::EntityMovementProperties>({true, true, true, 1.0f, 0.2f, 0.5f})
-            .set<Components::Rotation>({90.0, 0.0});
+        World::playerEntity = World::world.entity()
+        .set<Components::BasicMovementProps>({})
+        .set<Components::Camera>({})
+        .set<Components::EntityCoordinates>({0.2, -1.5, 0.5, 0u})
+        .set<Components::Rotation>({90.0, 0.0});
     }
 
     inline void exitGame() noexcept {
@@ -63,7 +64,7 @@ namespace Simulation::TemporaryCode {
         static_cast<void>(InputHandler::MouseMove::remove(moveCamera));
         InputHandler::setPointerLocked(false);
 
-        world.reset();
-        playerEntity = flecs::entity();
+        World::world.reset();
+        World::playerEntity = flecs::entity();
     }
 }

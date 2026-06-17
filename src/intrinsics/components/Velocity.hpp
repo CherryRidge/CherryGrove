@@ -2,6 +2,8 @@
 #include <glm/glm.hpp>
 
 namespace Components {
+
+    //CGID: `:velocity`
     struct Velocity {
         //block per tick.
         //Double?: I don't think anything will ever go that fast. Orbital strike cannons' TNTs sent to a reasonable distance are still below the acceptable threshold.

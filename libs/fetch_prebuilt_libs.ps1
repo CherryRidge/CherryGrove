@@ -1,12 +1,42 @@
 <#
 .PARAMETER 7zPath
     Path to 7z.exe (or 7za/7z on *nix). If on PATH, just "7z".
+
+.PARAMETER GitHubToken
+    Optional GitHub token for GitHub API requests. Defaults to GITHUB_TOKEN.
+
+.PARAMETER ShowHelp
+    Print usage information and exit. Use -h or -help.
 #>
 
 param(
     [string] $7zPath = '7z',
-    [string] $specifiesArch
+    [string] $specifiesArch,
+    [string] $GitHubToken = $env:GITHUB_TOKEN,
+    [Alias('h', 'help')]
+    [switch] $ShowHelp
 )
+
+function Show-Usage {
+    Write-Host @'
+Usage:
+  .\fetch_prebuilt_libs.ps1 [-7zPath <path>] [-specifiesArch <x64|arm64>] [-GitHubToken <token>]
+  .\fetch_prebuilt_libs.ps1 -h
+
+Parameters:
+  -7zPath         Path to 7z.exe. Defaults to "7z".
+  -specifiesArch Architecture to fetch: x64 or arm64. Defaults to detected host architecture.
+  -GitHubToken   Optional GitHub token for GitHub API requests. Defaults to GITHUB_TOKEN.
+  -h, -help      Print this help and exit.
+
+See https://docs.cherrygrove.dev/cg/releasing/building for more information.
+'@
+}
+
+if ($ShowHelp) {
+    Show-Usage
+    return
+}
 
 if ($specifiesArch) {
     if ($specifiesArch -in @('x64', 'arm64')) {
@@ -29,9 +59,12 @@ else {
     }
 }
 
-$headers = @{ 'User-Agent' = 'ps-github-latest-release' }
-if ($env:GITHUB_TOKEN) {
-    $headers['Authorization'] = "Bearer $($env:GITHUB_TOKEN)"
+$githubHeaders = @{ 'User-Agent' = 'ps-github-latest-release' }
+$githubApiHeaders = $githubHeaders.Clone()
+$githubApiHeaders['Accept'] = 'application/vnd.github+json'
+$githubApiHeaders['X-GitHub-Api-Version'] = '2022-11-28'
+if ($GitHubToken) {
+    $githubApiHeaders['Authorization'] = "Bearer $GitHubToken"
 }
 $retryCount = 20
 $retryDelaySec = 5
@@ -61,7 +94,7 @@ function Get-Library {
     )
     Write-Host "Downloading $name for Windows $archTag..."
     $release = Invoke-WithRetry -Description "Fetch release for dep_$name" -Operation {
-        Invoke-RestMethod -Method GET -Uri https://api.github.com/repos/cherryridge/dep_$name/releases/latest -Headers $headers -ErrorAction Stop
+        Invoke-RestMethod -Method GET -Uri https://api.github.com/repos/cherryridge/dep_$name/releases/latest -Headers $githubApiHeaders -ErrorAction Stop
     }
     if(-not $release -or $release.assets.Count -eq 0) {
         Write-Error "No assets found on latest release of dep_$name, check it at https://api.github.com/repos/cherryridge/dep_$name/releases/latest."
@@ -75,11 +108,11 @@ function Get-Library {
     }
     Write-Host "Downloading $($assetDebug.name): $($assetDebug.browser_download_url)..."
     $null = Invoke-WithRetry -Description "Download $($assetDebug.name)" -Operation {
-        Invoke-WebRequest -Uri $assetDebug.browser_download_url -Headers $headers -OutFile $assetDebug.name -ErrorAction Stop
+        Invoke-WebRequest -Uri $assetDebug.browser_download_url -Headers $githubHeaders -OutFile $assetDebug.name -ErrorAction Stop
     }
     Write-Host "Downloading $($assetRelease.name): $($assetRelease.browser_download_url)..."
     $null = Invoke-WithRetry -Description "Download $($assetRelease.name)" -Operation {
-        Invoke-WebRequest -Uri $assetRelease.browser_download_url -Headers $headers -OutFile $assetRelease.name -ErrorAction Stop
+        Invoke-WebRequest -Uri $assetRelease.browser_download_url -Headers $githubHeaders -OutFile $assetRelease.name -ErrorAction Stop
     }
     Get-ChildItem -Path "$PSScriptRoot\$name\debug" -Force | Where-Object { $_.name -ne '.gitignore'} | Remove-Item -Recurse -Force
     Get-ChildItem -Path "$PSScriptRoot\$name\release" -Force | Where-Object { $_.name -ne '.gitignore'} | Remove-Item -Recurse -Force

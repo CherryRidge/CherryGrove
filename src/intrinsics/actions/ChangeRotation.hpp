@@ -3,7 +3,7 @@
 #include "../../input/Action.hpp"
 #include "../../input/mouseMove/MMAction.hpp"
 #include "../../settings/Settings.hpp"
-#include "../../simulation/tick/playerEntity.hpp"
+#include "../../world/playerEntity.hpp"
 #include "../systems/Rotation.hpp"
 
 namespace IntrinsicInput {
@@ -14,7 +14,7 @@ namespace IntrinsicInput {
             cameraSensitivity = Settings::getSettings().input.mouseSensitivity * 0.15f,
             dX = eventwiseInfo.deltaX * cameraSensitivity,
             dY = eventwiseInfo.deltaY * cameraSensitivity;
-        static_cast<void>(Systems::deltaRotation(Simulation::playerEntity, dX, dY));
+        static_cast<void>(Systems::deltaRotation(World::playerEntity, dX, dY));
         flags |= InputHandler::EVENT_CONTROL_FLAGS_STOP_PROMPTED;
     }
 }

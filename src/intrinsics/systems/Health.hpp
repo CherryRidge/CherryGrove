@@ -5,6 +5,7 @@
 #include "../components/Health.hpp"
 
 namespace Systems {
+    typedef int32_t i32;
     typedef uint32_t u32;
 
     [[nodiscard]] inline bool updateHealth(flecs::entity entity,
@@ -18,12 +19,12 @@ namespace Systems {
         return false;
     }
 
-    [[nodiscard]] inline bool updateMaxHealth(flecs::entity entity,
-        u32 newMaxHealth
+    [[nodiscard]] inline bool deltaHealth(flecs::entity entity,
+        i32 delta
     ) noexcept {
         if (entity.has<Components::Health>()) {
             auto& health = entity.ensure<Components::Health>();
-            health.maxHealth = newMaxHealth;
+            health.health += delta;
             return true;
         }
         return false;
