@@ -13,6 +13,9 @@ Thumbs.db
 cpp.hint
 .idea/
 .claude/
+.agents/
+.codex/
+.local/
 *.iws
 *.iml
 *.ipr

@@ -65,7 +65,7 @@ namespace Boot {
         string workingDirectory;
         app.add_option("WorkingDirectory", workingDirectory, "CherryGrove's working directory.\nOptional. If not provided, CherryGrove will use the executable's directory.")->check(CLI::ExistingPath);
 
-        app.footer(string("Use the default config file by executing CherryGrove without any arguments.\nFor more information, please visit https://docs.cherrygrove.dev.\n\nCherryGrove is source-available software because it's a shame of open source to allow unrewarded commercial use.\n") + CG_COPYRIGHT_NOTICE + "\nhttps://cherrygrove.dev");
+        app.footer(string("CherryGrove is source-available software because it's a shame of open source to allow unrewarded commercial use.\n\nWebsite: https://cherrygrove.dev | Documentation: https://docs.cherrygrove.dev\n\n") + CG_COPYRIGHT_NOTICE);
 
         try { app.parse(argc, argv); }
         catch (const CallForHelp&) {
