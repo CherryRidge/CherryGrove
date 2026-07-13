@@ -2,7 +2,6 @@
 #include <atomic>
 #include <thread>
 #include <bgfx/bgfx.h>
-#include <bgfx/platform.h>
 #include <bx/math.h>
 #include <SDL3/SDL.h>
 
