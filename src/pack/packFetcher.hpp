@@ -12,7 +12,7 @@
 #include "PackMetaInfo.hpp"
 #include "registry.hpp"
 
-namespace Pack {
+namespace Pack::detail {
     typedef uint8_t u8;
     using std::move, std::string, std::vector, std::filesystem::path, std::filesystem::directory_iterator, std::filesystem::is_directory, std::filesystem::exists, Util::OS::normalize, Util::OS::getU8String, Util::OS::ArchiveType, Util::OS::getArType, Util::OS::readFileFromAr, Util::OS::stripBOM, Util::Json::Latest, Util::Json::JSONKind::Manifest;
 
@@ -21,20 +21,20 @@ namespace Pack {
     //Currently `knownPacks` in settings is only used for version tracking (thus triggering further actions like migration preparation) and whether the user has explicitly disabled the pack. It have NOTHING to do with pack UUID collision handling!
     //todo: Currently we don't store the path in `knownPacks` in settings and we subsequently don't check if this time the pack loaded is from the same path as the last time. This means that if a pack is moved to a different pack root or from a pack root to a specific path (or vice versa), it will be treated as the same pack and the new path will be loaded without any information or warning whatsoever. We might want to add path tracking in `knownPacks` in the future to detect such cases and log a warning because I think this might be abusable for pack-level shadowing.
     inline void tryAddingPack(const PackMetaInfo& info) noexcept {
-        const auto itRegistry = detail::registry.find(info.manifest.id);
-        if (itRegistry != detail::registry.end()) {
-            lerr << "[Pack] Pack with ID " << info.manifest.id.value() << " already exists in path " << itRegistry->second.pathStr << ", skipping adding the pack in path " << info.pathStr << ". Do not purposely clash pack IDs. If you want to overwrite a pack's behavior, use the same `nameSpace` and require yourself to load after the target pack." << nlaf;
+        const auto it_packInfo = packInfo.find(info.manifest.id);
+        if (it_packInfo != packInfo.end()) {
+            lerr << "[Pack] Pack with ID " << info.manifest.id.value() << " already exists in path " << it_packInfo->second.pathStr << ", skipping adding the pack in path " << info.pathStr << ". Do not purposely clash pack IDs. If you want to overwrite a pack's behavior, use the same `nameSpace` and require yourself to load after the target pack." << nlaf;
             return;
         }
-        detail::registry.emplace(info.manifest.id.value(), info);
-        auto itKnownPacks = detail::knownPacks.find(info.manifest.id);
-        if (itKnownPacks != detail::knownPacks.end()) {
+        packInfo.emplace(info.manifest.id.value(), info);
+        auto itKnownPacks = knownPacks.find(info.manifest.id);
+        if (itKnownPacks != knownPacks.end()) {
             if (itKnownPacks->second.version != info.manifest.version) {
                 lout << "[Pack] Pack " << info.manifest.id.value() << "'s version changed from " << itKnownPacks->second.version << " to " << info.manifest.version << ", todo: prepare for preparing migration." << nlaf;
             }
             itKnownPacks->second.version = info.manifest.version;
         }
-        else detail::knownPacks.emplace(info.manifest.id.value(), KnownPack{
+        else knownPacks.emplace(info.manifest.id.value(), KnownPack{
             .id = info.manifest.id,
             .version = info.manifest.version,
             .disabled = false

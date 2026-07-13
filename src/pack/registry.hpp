@@ -8,6 +8,8 @@
 namespace Pack::detail {
     using boost::unordered_flat_map, Util::Wrapper::uuid_JSON;
 
-    inline unordered_flat_map<uuid_JSON, PackMetaInfo> registry;
+    inline unordered_flat_map<uuid_JSON, PackMetaInfo> packInfo;
     inline unordered_flat_map<uuid_JSON, KnownPack> knownPacks;
+
+    inline unordered_flat_map<string, vector<uuid_JSON>> shadowingInfo; //nameSpace -> pack UUID in linear topology order
 }

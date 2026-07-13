@@ -11,33 +11,39 @@
 #include "packFetcher.hpp"
 #include "PackMetaInfo.hpp"
 #include "registry.hpp"
+#include "shadowing.hpp"
 
 namespace Pack {
     typedef uint64_t u64;
     using std::filesystem::current_path, std::string, boost::unordered_flat_map, Util::Json::Latest, Util::Json::JSONKind::Settings;
 
-    inline void init() noexcept {
+    inline void updatePacks() noexcept {
         const Latest<Settings>::Packs& packSettings = Settings::getSettings().packs;
         for (u64 i = 0; i < packSettings.knownPacks.size(); i++) detail::knownPacks.emplace(packSettings.knownPacks[i].id.value(), packSettings.knownPacks[i]);
 
         //Get Packs from the default pack root `/packs` and any additional pack roots specified in settings. This is separate from the "additionalPacks" in settings, which are specific pack paths.
-        getPacksFromPackRoot("packs");
-        for (u64 i = 0; i < packSettings.additionalPackRoots.size(); i++) getPacksFromPackRoot(packSettings.additionalPackRoots[i]);
+        detail::getPacksFromPackRoot("packs");
+        for (u64 i = 0; i < packSettings.additionalPackRoots.size(); i++) detail::getPacksFromPackRoot(packSettings.additionalPackRoots[i]);
 
         //Get Packs from specific paths specified in settings.
         PackMetaInfo info;
         for (u64 i = 0; i < packSettings.additionalPacks.size(); i++) {
-            if (parsePackManifest(packSettings.additionalPacks[i], info)) tryAddingPack(info);
+            if (detail::parsePackManifest(packSettings.additionalPacks[i], info)) detail::tryAddingPack(info);
             else lerr << "[Pack] Failed to parse pack: " << packSettings.additionalPacks[i] << nlaf;
         }
-        lout << "[Pack] Found " << detail::registry.size() << " valid packs." << nlaf;
+        lout << "[Pack] Found " << detail::packInfo.size() << " valid packs." << nlaf;
 
         if (!Settings::updateKnownPacks(detail::knownPacks)) {
-            lerr << "[Pack] Failed to update known packs." << nlaf;
+            lerr << "[Pack] Failed to write new known packs to settings file." << nlaf;
             Debug::exit(Debug::SETTINGS_FAILED_TO_SAVE);
         }
 
+        detail::updateShadowing();
+    }
+
+    inline void init() noexcept {
         Umi::init();
+        updatePacks();
     }
 
     inline void shutdown() noexcept {

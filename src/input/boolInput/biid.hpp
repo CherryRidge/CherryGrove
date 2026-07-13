@@ -3,13 +3,13 @@
 #include <SDL3/SDL.h>
 
 #include "../../debug/loggers.hpp"
-#include "../../util/BijectorArray.hpp"
+#include "../../util/ComptimeBijection.hpp"
 
 namespace InputHandler::BoolInput {
     typedef uint8_t u8;
     typedef uint16_t u16;
     typedef uint32_t u32;
-    using std::numeric_limits, Util::BijectorArray;
+    using std::numeric_limits, Util::ComptimeBijection;
     using BoolInputID = u16;
 
     //THE SCHEMA OF SOURCED CODE (u16):
@@ -40,7 +40,7 @@ namespace InputHandler::BoolInput {
         #define GAMEPAD(scancode) (static_cast<u16>(scancode) | static_cast<u16>(BIInputSource::Gamepad) << 12)
 
         //Typical strategy of buying time with space.
-        inline constexpr BijectorArray<BoolInputID, BIID_COUNT, 8218> BIIDtoSourcedCode = {{
+        inline constexpr ComptimeBijection<BoolInputID, BIID_COUNT, 8218> BIIDtoSourcedCode = {{
             MOUSE(SDL_BUTTON_LEFT),
             MOUSE(SDL_BUTTON_MIDDLE),
             MOUSE(SDL_BUTTON_RIGHT),

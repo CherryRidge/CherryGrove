@@ -173,6 +173,19 @@ namespace Util {
             return true;
         }
 
+        template <typename... Args>
+        [[nodiscard]] bool reconstruct(HandleType handle, HandleType& newHandle, Args&&... args) noexcept {
+            const GenerationalHandle genHandle = getHandle(handle);
+            const u32 generation = genHandle.getGeneration(), index = genHandle.getIndex();
+            if (index >= storage.size()) return false;
+            auto& slot = storage[index];
+            destroy_at(&slot.data);
+            construct_at(&slot.data, forward<Args>(args)...);
+            slot.generation++;
+            newHandle = wrapHandle(GenerationalHandle{slot.generation, index});
+            return true;
+        }
+
         struct Iterator {
             SlotTable<EntryType, HandleType>* table{nullptr};
             u64 index{0};
